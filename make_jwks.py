@@ -7,7 +7,9 @@ writes that file; you host it, then paste its URL into the form.
 
     python make_jwks.py
 
-Writes keys/jwks.json and prints the `kid` (key ID). The kid is an RFC 7638
+Writes jwks.json (in the project root, NOT in keys/ — everything in keys/ is
+secret and gitignored, whereas this file is meant to be published) and prints
+the `kid` (key ID). The kid is an RFC 7638
 thumbprint — a fingerprint derived from the key itself, so it changes only if
 the key changes. epic_fhir_backend.py reads it from jwks.json automatically and
 puts it in the JWT header so Epic knows which key in the set to verify against.
@@ -31,7 +33,11 @@ import os
 from cryptography.hazmat.primitives import serialization
 
 PUBLIC_KEY_PATH = os.path.join("keys", "public_key.pem")
-JWKS_PATH = os.path.join("keys", "jwks.json")
+
+# Deliberately NOT inside keys/. Everything in keys/ is secret and gitignored;
+# this file is the one artifact meant to be published, so it lives outside that
+# boundary where committing it is the obvious thing to do.
+JWKS_PATH = "jwks.json"
 
 
 def b64url(raw: bytes) -> str:

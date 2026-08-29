@@ -1,4 +1,5 @@
-# Private signing key — never commit this
+# keys/ is the secret boundary — nothing in here is ever committed.
+# The publishable public key lives in ./jwks.json, outside this folder.
 keys/
 *.pem
 

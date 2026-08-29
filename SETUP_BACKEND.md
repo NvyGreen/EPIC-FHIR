@@ -70,8 +70,11 @@ save restarts the sync wait in step 5.
 python make_jwks.py
 ```
 
-That writes `keys/jwks.json`. Now put it at a public HTTPS URL. GitHub Pages is
-the least-effort option:
+That writes **`jwks.json` in the project root** — deliberately *not* inside
+`keys/`. The rule is: everything in `keys/` is secret and gitignored; `jwks.json`
+is the one artifact meant to be published, so it sits outside that boundary.
+
+Now put it at a public HTTPS URL. GitHub Pages is the least-effort option:
 
 1. Create a **public** repo, e.g. `epic-jwks`.
 2. Commit `jwks.json` into it. Publishing the *public* key is the entire point
@@ -85,8 +88,8 @@ the least-effort option:
 Paste that URL into **Non-Production JWK Set URL** on the Build Apps form.
 
 The `kid` printed by the script is a fingerprint of the key. `epic_fhir_backend.py`
-reads it out of `keys/jwks.json` and puts it in the JWT header automatically, so
-Epic knows which key in the set to verify against — keep `jwks.json` next to the
+reads it out of `jwks.json` and puts it in the JWT header automatically, so Epic
+knows which key in the set to verify against — keep `jwks.json` next to the
 script, and re-run `make_jwks.py` if you ever change keys.
 
 ## 4. Configure the script

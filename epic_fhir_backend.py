@@ -50,7 +50,8 @@ PRIVATE_KEY_PATH = os.environ.get("EPIC_PRIVATE_KEY", "keys/private_key.pem")
 
 # Written by make_jwks.py. Used only to read back the `kid`, which must appear
 # in the JWT header so Epic can pick the right key out of your published JWKS.
-JWKS_PATH = "keys/jwks.json"
+# Lives outside keys/ because it's the one file here that gets published.
+JWKS_PATH = "jwks.json"
 
 # Epic's public non-production (sandbox) endpoints.
 TOKEN_URL = "https://fhir.epic.com/interconnect-fhir-oauth/oauth2/token"
