@@ -1,0 +1,7 @@
+# Private signing key — never commit this
+keys/
+*.pem
+
+__pycache__/
+fhir_data/
+fhir_data_backend/
