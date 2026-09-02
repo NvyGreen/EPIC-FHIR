@@ -6,3 +6,4 @@ keys/
 __pycache__/
 fhir_data/
 fhir_data_backend/
+.venv
