@@ -75,19 +75,19 @@ PATIENT_NAMES = [
     # ("Lin", "Derrick"),
 ]
 
+# (label, FHIR resource type, extra search params).
+#
+# The label names the output file, so the same resource type can appear more
+# than once with different params — Epic requires a category on some searches
+# rather than returning everything, and it authorizes those categories
+# separately. Asking for a category your app can't search returns nothing
+# rather than an error, so pull them one at a time and you can see which
+# came back empty.
 RESOURCE_TYPES = [
-    "Condition",
-    "Observation",
-    "MedicationRequest",
-    "AllergyIntolerance",
-    "Immunization",
+    ("Condition", "Condition", {}),
+    ("Encounter", "Encounter", {}),
+    ("Observation_vitals", "Observation", {"category": "vital-signs"}),
 ]
-
-# Epic requires a category or code on some searches rather than returning
-# everything; these keep the common ones from erroring out.
-SEARCH_DEFAULTS = {
-    "Observation": {"category": "laboratory,vital-signs,social-history"},
-}
 
 OUTPUT_DIR = "fhir_data_backend"
 
@@ -193,10 +193,10 @@ def fhir_get(access_token, url, params=None):
     return resp.json()
 
 
-def fetch_bundle(access_token, resource_type, patient_id):
+def fetch_bundle(access_token, resource_type, patient_id, extra_params=None):
     """Fetch a search bundle, following `next` links so we get every page."""
     params = {"patient": patient_id}
-    params.update(SEARCH_DEFAULTS.get(resource_type, {}))
+    params.update(extra_params or {})
 
     bundle = fhir_get(access_token, f"{FHIR_BASE_URL}/{resource_type}", params)
     entries = bundle.get("entry", [])
@@ -249,13 +249,13 @@ def pull_patient(access_token, patient_id):
     name = patient.get("name", [{}])[0].get("text", "(no name)")
     print(f"  Patient.json — {name}")
 
-    for rtype in RESOURCE_TYPES:
+    for label, rtype, extra in RESOURCE_TYPES:
         try:
-            bundle = fetch_bundle(access_token, rtype, patient_id)
-            save(bundle, patient_id, f"{rtype}.json")
-            print(f"  {rtype}.json — {bundle['total']} entries")
+            bundle = fetch_bundle(access_token, rtype, patient_id, extra)
+            save(bundle, patient_id, f"{label}.json")
+            print(f"  {label}.json — {bundle['total']} entries")
         except requests.HTTPError as e:
-            print(f"  {rtype} skipped: {e}")
+            print(f"  {label} skipped: {e}")
 
 
 def main():
